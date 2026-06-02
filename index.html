@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Bar Mitsvah</title>
+  <title>Bar Mitsvah de Shaï</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -13,7 +13,7 @@
 
     .card {
       background: white;
-      max-width: 600px;
+      max-width: 700px;
       margin: auto;
       padding: 30px;
       border-radius: 20px;
@@ -27,6 +27,7 @@
       border-radius: 10px;
       border: 1px solid #ccc;
       font-size: 16px;
+      box-sizing: border-box;
     }
 
     button {
@@ -34,10 +35,24 @@
       color: white;
       cursor: pointer;
       border: none;
+      font-weight: bold;
     }
 
     #formulaire {
       display: none;
+    }
+
+    .section {
+      margin-top: 25px;
+      padding: 20px;
+      background: #fafafa;
+      border-radius: 15px;
+      border: 1px solid #ddd;
+    }
+
+    .max {
+      font-size: 14px;
+      color: #666;
     }
   </style>
 </head>
@@ -58,22 +73,39 @@
 
   <p>
     📅 Date : [date]<br>
-    🕍 Cérémonie : [lieu et heure]<br>
+    🕍 Mise des Téfilines : [lieu et heure]<br>
     🎉 Réception : [lieu et heure]
   </p>
 
   <form onsubmit="envoyer(event)">
-    <select id="presence" required>
-      <option value="">Serez-vous présents ?</option>
-      <option value="oui">Oui, nous serons présents</option>
-      <option value="non">Non, nous ne pourrons pas venir</option>
-    </select>
 
-    <label>Nombre d’adultes</label>
-    <input id="adultes" type="number" min="0" required>
+    <div class="section">
+      <h3>🕍 Mise des Téfilines</h3>
 
-    <label>Nombre d’enfants</label>
-    <input id="enfants" type="number" min="0" required>
+      <select id="presenceTefilines" required>
+        <option value="">Serez-vous présents ?</option>
+        <option value="oui">Oui, nous serons présents</option>
+        <option value="non">Non, nous ne pourrons pas venir</option>
+      </select>
+
+      <label>Nombre d’invités pour les Téfilines</label>
+      <input id="nbTefilines" type="number" min="0" required>
+      <div class="max" id="maxTefilines"></div>
+    </div>
+
+    <div class="section">
+      <h3>🎉 Réception</h3>
+
+      <select id="presenceReception" required>
+        <option value="">Serez-vous présents ?</option>
+        <option value="oui">Oui, nous serons présents</option>
+        <option value="non">Non, nous ne pourrons pas venir</option>
+      </select>
+
+      <label>Nombre d’invités pour la réception</label>
+      <input id="nbReception" type="number" min="0" required>
+      <div class="max" id="maxReception"></div>
+    </div>
 
     <textarea id="message" placeholder="Message optionnel"></textarea>
 
@@ -86,7 +118,7 @@
 <script>
   const API_URL = "https://script.google.com/macros/s/AKfycbztKiF8kRbZ7FH4n4Cz6WAin4ho7v688RIBem41rq2gP2Ak_6LJkD7r_RtP5PjLtICz/exec";
   const params = new URLSearchParams(window.location.search);
-  const code = params.get("famille");
+  const code = params.get("famille") || params.get("rsvp");
 
   let invite = null;
 
@@ -97,93 +129,84 @@
     chargerInvite();
   }
 
-async function chargerInvite() {
-  const res = await fetch(API_URL + "?code=" + encodeURIComponent(code));
-  invite = await res.json();
+  async function chargerInvite() {
+    const res = await fetch(API_URL + "?code=" + encodeURIComponent(code));
+    invite = await res.json();
 
-  if (!invite.ok) {
-    document.getElementById("formulaire").innerHTML =
-      "<h2>Lien invalide</h2>";
-    return;
+    if (!invite.ok) {
+      document.getElementById("formulaire").innerHTML = "<h2>Lien invalide</h2>";
+      return;
+    }
+
+    document.getElementById("titreFamille").innerText =
+      "Invitation pour " + invite.famille;
+
+    const nbTefilines = document.getElementById("nbTefilines");
+    const nbReception = document.getElementById("nbReception");
+
+    nbTefilines.max = invite.tefilinesMax;
+    nbReception.max = invite.receptionMax;
+
+    nbTefilines.value = invite.tefilinesMax;
+    nbReception.value = invite.receptionMax;
+
+    document.getElementById("maxTefilines").innerText =
+      "Maximum autorisé : " + invite.tefilinesMax + " invité(s)";
+
+    document.getElementById("maxReception").innerText =
+      "Maximum autorisé : " + invite.receptionMax + " invité(s)";
+
+    nbTefilines.addEventListener("input", function () {
+      if (Number(this.value) > invite.tefilinesMax) {
+        alert("Maximum autorisé pour les Téfilines : " + invite.tefilinesMax);
+        this.value = invite.tefilinesMax;
+      }
+      if (Number(this.value) < 0) this.value = 0;
+    });
+
+    nbReception.addEventListener("input", function () {
+      if (Number(this.value) > invite.receptionMax) {
+        alert("Maximum autorisé pour la réception : " + invite.receptionMax);
+        this.value = invite.receptionMax;
+      }
+      if (Number(this.value) < 0) this.value = 0;
+    });
   }
 
-  document.getElementById("titreFamille").innerText =
-    "Invitation pour " + invite.famille;
+  async function envoyer(e) {
+    e.preventDefault();
 
-  const adultes = document.getElementById("adultes");
-  const enfants = document.getElementById("enfants");
+    const nbTefilines = Number(document.getElementById("nbTefilines").value);
+    const nbReception = Number(document.getElementById("nbReception").value);
 
-  adultes.max = invite.adultesMax;
-  enfants.max = invite.enfantsMax;
-
-  adultes.placeholder =
-    "Maximum " + invite.adultesMax + " adulte(s)";
-
-  enfants.placeholder =
-    "Maximum " + invite.enfantsMax + " enfant(s)";
-
-  // Valeurs par défaut
-  adultes.value = invite.adultesMax;
-  enfants.value = invite.enfantsMax;
-
-  // Blocage automatique adultes
-  adultes.addEventListener("input", function () {
-    if (Number(this.value) > invite.adultesMax) {
-      alert("Maximum autorisé : " + invite.adultesMax + " adulte(s)");
-      this.value = invite.adultesMax;
+    if (nbTefilines > invite.tefilinesMax) {
+      alert("Maximum Téfilines : " + invite.tefilinesMax);
+      return;
     }
 
-    if (Number(this.value) < 0) {
-      this.value = 0;
-    }
-  });
-
-  // Blocage automatique enfants
-  enfants.addEventListener("input", function () {
-    if (Number(this.value) > invite.enfantsMax) {
-      alert("Maximum autorisé : " + invite.enfantsMax + " enfant(s)");
-      this.value = invite.enfantsMax;
+    if (nbReception > invite.receptionMax) {
+      alert("Maximum réception : " + invite.receptionMax);
+      return;
     }
 
-    if (Number(this.value) < 0) {
-      this.value = 0;
-    }
-  });
-}
+    const data = {
+      code,
+      presenceTefilines: document.getElementById("presenceTefilines").value,
+      nbTefilines,
+      presenceReception: document.getElementById("presenceReception").value,
+      nbReception,
+      message: document.getElementById("message").value
+    };
 
-async function envoyer(e) {
-  e.preventDefault();
+    const res = await fetch(API_URL, {
+      method: "POST",
+      body: JSON.stringify(data)
+    });
 
-  const adultes = Number(document.getElementById("adultes").value);
-  const enfants = Number(document.getElementById("enfants").value);
-
-  if (adultes > invite.adultesMax) {
-    alert("Maximum " + invite.adultesMax + " adulte(s)");
-    return;
+    const result = await res.json();
+    document.getElementById("retour").innerText = result.message;
   }
-
-  if (enfants > invite.enfantsMax) {
-    alert("Maximum " + invite.enfantsMax + " enfant(s)");
-    return;
-  }
-
-  const data = {
-    code,
-    presence: document.getElementById("presence").value,
-    adultes,
-    enfants,
-    message: document.getElementById("message").value
-  };
-
-  const res = await fetch(API_URL, {
-    method: "POST",
-    body: JSON.stringify(data)
-  });
-
-  const result = await res.json();
-
-  document.getElementById("retour").innerText = result.message;
-}</script>
+</script>
 
 </body>
 </html>
