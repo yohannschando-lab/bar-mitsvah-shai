@@ -48,7 +48,7 @@
 </audio>
 
 <div class="card" id="intro">
-  <h1>Bar Mitsvah de [Prénom]</h1>
+  <h1>Bar Mitsvah de Shaï</h1>
   <p>Nous avons la joie de vous inviter à célébrer ce moment unique.</p>
   <button onclick="entrer()">Entrer dans l’invitation</button>
 </div>
@@ -97,48 +97,93 @@
     chargerInvite();
   }
 
-  async function chargerInvite() {
-    const res = await fetch(API_URL + "?code=" + encodeURIComponent(code));
-    invite = await res.json();
+async function chargerInvite() {
+  const res = await fetch(API_URL + "?code=" + encodeURIComponent(code));
+  invite = await res.json();
 
-    if (!invite.ok) {
-      document.getElementById("formulaire").innerHTML = "<h2>Lien invalide</h2>";
-      return;
+  if (!invite.ok) {
+    document.getElementById("formulaire").innerHTML =
+      "<h2>Lien invalide</h2>";
+    return;
+  }
+
+  document.getElementById("titreFamille").innerText =
+    "Invitation pour " + invite.famille;
+
+  const adultes = document.getElementById("adultes");
+  const enfants = document.getElementById("enfants");
+
+  adultes.max = invite.adultesMax;
+  enfants.max = invite.enfantsMax;
+
+  adultes.placeholder =
+    "Maximum " + invite.adultesMax + " adulte(s)";
+
+  enfants.placeholder =
+    "Maximum " + invite.enfantsMax + " enfant(s)";
+
+  // Valeurs par défaut
+  adultes.value = invite.adultesMax;
+  enfants.value = invite.enfantsMax;
+
+  // Blocage automatique adultes
+  adultes.addEventListener("input", function () {
+    if (Number(this.value) > invite.adultesMax) {
+      alert("Maximum autorisé : " + invite.adultesMax + " adulte(s)");
+      this.value = invite.adultesMax;
     }
 
-    document.getElementById("titreFamille").innerText =
-      "Invitation pour " + invite.famille;
+    if (Number(this.value) < 0) {
+      this.value = 0;
+    }
+  });
 
-    document.getElementById("adultes").max = invite.adultesMax;
-    document.getElementById("enfants").max = invite.enfantsMax;
+  // Blocage automatique enfants
+  enfants.addEventListener("input", function () {
+    if (Number(this.value) > invite.enfantsMax) {
+      alert("Maximum autorisé : " + invite.enfantsMax + " enfant(s)");
+      this.value = invite.enfantsMax;
+    }
 
-    document.getElementById("adultes").placeholder =
-      "Maximum " + invite.adultesMax;
+    if (Number(this.value) < 0) {
+      this.value = 0;
+    }
+  });
+}
 
-    document.getElementById("enfants").placeholder =
-      "Maximum " + invite.enfantsMax;
+async function envoyer(e) {
+  e.preventDefault();
+
+  const adultes = Number(document.getElementById("adultes").value);
+  const enfants = Number(document.getElementById("enfants").value);
+
+  if (adultes > invite.adultesMax) {
+    alert("Maximum " + invite.adultesMax + " adulte(s)");
+    return;
   }
 
-  async function envoyer(e) {
-    e.preventDefault();
-
-    const data = {
-      code,
-      presence: document.getElementById("presence").value,
-      adultes: document.getElementById("adultes").value,
-      enfants: document.getElementById("enfants").value,
-      message: document.getElementById("message").value
-    };
-
-    const res = await fetch(API_URL, {
-      method: "POST",
-      body: JSON.stringify(data)
-    });
-
-    const result = await res.json();
-    document.getElementById("retour").innerText = result.message;
+  if (enfants > invite.enfantsMax) {
+    alert("Maximum " + invite.enfantsMax + " enfant(s)");
+    return;
   }
-</script>
+
+  const data = {
+    code,
+    presence: document.getElementById("presence").value,
+    adultes,
+    enfants,
+    message: document.getElementById("message").value
+  };
+
+  const res = await fetch(API_URL, {
+    method: "POST",
+    body: JSON.stringify(data)
+  });
+
+  const result = await res.json();
+
+  document.getElementById("retour").innerText = result.message;
+}</script>
 
 </body>
 </html>
