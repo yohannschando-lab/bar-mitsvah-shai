@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Bar Mitsvah</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f6efe7;
+      text-align: center;
+      padding: 30px;
+    }
+
+    .card {
+      background: white;
+      max-width: 600px;
+      margin: auto;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    }
+
+    input, select, textarea, button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 12px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+
+    button {
+      background: #1f3c88;
+      color: white;
+      cursor: pointer;
+      border: none;
+    }
+
+    #formulaire {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+<audio id="musique" loop>
+  <source src="musique.mp3" type="audio/mpeg">
+</audio>
+
+<div class="card" id="intro">
+  <h1>Bar Mitsvah de [Prénom]</h1>
+  <p>Nous avons la joie de vous inviter à célébrer ce moment unique.</p>
+  <button onclick="entrer()">Entrer dans l’invitation</button>
+</div>
+
+<div class="card" id="formulaire">
+  <h2 id="titreFamille"></h2>
+
+  <p>
+    📅 Date : [date]<br>
+    🕍 Cérémonie : [lieu et heure]<br>
+    🎉 Réception : [lieu et heure]
+  </p>
+
+  <form onsubmit="envoyer(event)">
+    <select id="presence" required>
+      <option value="">Serez-vous présents ?</option>
+      <option value="oui">Oui, nous serons présents</option>
+      <option value="non">Non, nous ne pourrons pas venir</option>
+    </select>
+
+    <label>Nombre d’adultes</label>
+    <input id="adultes" type="number" min="0" required>
+
+    <label>Nombre d’enfants</label>
+    <input id="enfants" type="number" min="0" required>
+
+    <textarea id="message" placeholder="Message optionnel"></textarea>
+
+    <button type="submit">Envoyer ma réponse</button>
+  </form>
+
+  <p id="retour"></p>
+</div>
+
+<script>
+  const API_URL = "https://script.google.com/macros/s/AKfycbztKiF8kRbZ7FH4n4Cz6WAin4ho7v688RIBem41rq2gP2Ak_6LJkD7r_RtP5PjLtICz/exec";
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get("famille");
+
+  let invite = null;
+
+  async function entrer() {
+    document.getElementById("musique").play().catch(() => {});
+    document.getElementById("intro").style.display = "none";
+    document.getElementById("formulaire").style.display = "block";
+    chargerInvite();
+  }
+
+  async function chargerInvite() {
+    const res = await fetch(API_URL + "?code=" + encodeURIComponent(code));
+    invite = await res.json();
+
+    if (!invite.ok) {
+      document.getElementById("formulaire").innerHTML = "<h2>Lien invalide</h2>";
+      return;
+    }
+
+    document.getElementById("titreFamille").innerText =
+      "Invitation pour " + invite.famille;
+
+    document.getElementById("adultes").max = invite.adultesMax;
+    document.getElementById("enfants").max = invite.enfantsMax;
+
+    document.getElementById("adultes").placeholder =
+      "Maximum " + invite.adultesMax;
+
+    document.getElementById("enfants").placeholder =
+      "Maximum " + invite.enfantsMax;
+  }
+
+  async function envoyer(e) {
+    e.preventDefault();
+
+    const data = {
+      code,
+      presence: document.getElementById("presence").value,
+      adultes: document.getElementById("adultes").value,
+      enfants: document.getElementById("enfants").value,
+      message: document.getElementById("message").value
+    };
+
+    const res = await fetch(API_URL, {
+      method: "POST",
+      body: JSON.stringify(data)
+    });
+
+    const result = await res.json();
+    document.getElementById("retour").innerText = result.message;
+  }
+</script>
+
+</body>
+</html>
