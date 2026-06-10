@@ -2,22 +2,714 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Bar Mitsvah de Shaï</title>
+
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f6efe7;
-      text-align: center;
-      padding: 30px;
+    * { box-sizing: border-box; }
+
+    :root {
+      --cyan: #00d9ff;
+      --cyan2: #00aaff;
+      --green: #70ff9f;
+      --yellow: #ffd166;
+      --dark: #020712;
     }
 
-    .card {
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background: #050814;
+    }
+
+    /* ========================= */
+    /* ÉCRAN D'ACCUEIL FUTURISTE */
+    /* ========================= */
+
+    .boot-screen {
+      min-height: 100svh;
+      position: relative;
+      overflow: hidden;
+      color: #c9f3ff;
+      background: #02050d;
+      isolation: isolate;
+    }
+
+    /* Photo plein écran derrière tout */
+    .photo-zone {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      overflow: hidden;
+      border: none;
+      box-shadow: none;
+      background: #020812;
+    }
+
+    .boot-photo {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: 62% center;
+      filter: blur(18px) brightness(0.42) contrast(1.15) saturate(1.05);
+      opacity: 0.22;
+      transform: scale(1.10);
+      transition: all 0.05s linear;
+      display: block;
+    }
+
+    /* Voile sombre léger pour que le texte reste lisible, mais photo visible */
+    .photo-zone::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 4;
+      background:
+        radial-gradient(circle at 64% 42%, rgba(0, 217, 255, 0.13), transparent 36%),
+        linear-gradient(90deg,
+          rgba(2,5,13,0.92) 0%,
+          rgba(2,5,13,0.72) 28%,
+          rgba(2,5,13,0.34) 58%,
+          rgba(2,5,13,0.10) 100%
+        ),
+        linear-gradient(0deg, rgba(2,5,13,0.42), rgba(2,5,13,0.05) 45%, rgba(2,5,13,0.28));
+      pointer-events: none;
+    }
+
+    .boot-screen::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 8;
+      background:
+        linear-gradient(rgba(0, 180, 255, 0.055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 180, 255, 0.055) 1px, transparent 1px);
+      background-size: 34px 34px;
+      opacity: 0.7;
+      pointer-events: none;
+    }
+
+    .boot-screen::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(255,255,255,0.035),
+        rgba(255,255,255,0.035) 1px,
+        transparent 2px,
+        transparent 6px
+      );
+      pointer-events: none;
+      z-index: 60;
+    }
+
+    .hud-border {
+      position: absolute;
+      inset: 18px;
+      border: 2px solid var(--cyan);
+      box-shadow: 0 0 28px #009dff, inset 0 0 30px rgba(0, 180, 255, 0.22);
+      pointer-events: none;
+      z-index: 20;
+    }
+
+    .hud-border::before,
+    .hud-border::after {
+      content: "";
+      position: absolute;
+      width: 120px;
+      height: 120px;
+      border-color: var(--cyan);
+      border-style: solid;
+      filter: drop-shadow(0 0 10px var(--cyan));
+    }
+
+    .hud-border::before { left: -2px; top: -2px; border-width: 5px 0 0 5px; }
+    .hud-border::after { right: -2px; bottom: -2px; border-width: 0 5px 5px 0; }
+
+    .screen-flash {
+      position: absolute;
+      inset: 0;
+      z-index: 80;
+      pointer-events: none;
       background: white;
-      max-width: 700px;
-      margin: auto;
+      opacity: 0;
+    }
+
+    .boot-screen.complete .screen-flash {
+      animation: flashUnlock 0.55s ease 1;
+    }
+
+    .energy-ring {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--green);
+      border-radius: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      opacity: 0;
+      z-index: 75;
+      pointer-events: none;
+      box-shadow: 0 0 25px var(--green);
+    }
+
+    .boot-screen.complete .energy-ring {
+      animation: ringBlast 1.15s ease-out 1;
+    }
+
+    .top-left {
+      position: absolute;
+      top: 34px;
+      left: 44px;
+      z-index: 25;
+      color: var(--cyan);
+      font-size: clamp(20px, 2.4vw, 38px);
+      letter-spacing: clamp(4px, .7vw, 8px);
+      padding: 14px clamp(22px, 3vw, 48px);
+      border: 1px solid var(--cyan);
+      background: rgba(0, 14, 35, 0.38);
+      backdrop-filter: blur(8px);
+      box-shadow: 0 0 20px rgba(0, 191, 255, 0.85);
+      clip-path: polygon(0 0, 100% 0, 100% 78%, 88% 100%, 0 100%);
+      white-space: nowrap;
+    }
+
+    .top-right {
+      position: absolute;
+      top: 48px;
+      right: 56px;
+      z-index: 25;
+      color: #e8fbff;
+      font-size: clamp(18px, 2vw, 26px);
+      font-weight: bold;
+      text-shadow: 0 0 12px var(--cyan);
+    }
+
+    .boot-layout {
+      min-height: 100svh;
+      display: grid;
+      grid-template-columns: minmax(330px, 38%) minmax(0, 1fr);
+      gap: clamp(30px, 6vw, 120px);
+      padding: 132px clamp(22px, 5vw, 72px) 34px;
+      position: relative;
+      z-index: 15;
+    }
+
+    /* Bloc central transparent pour voir la photo derrière */
+    .left-panel {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-width: 0;
+      text-align: left;
+      max-width: 690px;
+      padding: clamp(22px, 3vw, 44px);
+      border: 1px solid rgba(0,217,255,0.30);
+      border-radius: 24px;
+      background: linear-gradient(90deg, rgba(0, 10, 28, 0.40), rgba(0, 10, 28, 0.20));
+      backdrop-filter: blur(5px);
+      box-shadow: 0 0 32px rgba(0,217,255,0.20), inset 0 0 24px rgba(0,217,255,0.08);
+    }
+
+    .left-panel h1 {
+      color: #e8f8ff;
+      font-size: clamp(34px, 4.1vw, 66px);
+      letter-spacing: 4px;
+      text-shadow: 0 0 18px #00aaff;
+      margin: 0 0 34px;
+      line-height: 1;
+    }
+
+    .steps {
+      border-left: 2px solid rgba(0, 217, 255, .5);
+      padding-left: 18px;
+      margin-bottom: 34px;
+    }
+
+    .steps p,
+    .terminal p {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      margin: 15px 0;
+      font-size: clamp(14px, 1.25vw, 20px);
+      letter-spacing: 0.5px;
+    }
+
+    .steps .line-text::before {
+      content: "●";
+      color: #8befff;
+      margin-right: 12px;
+      text-shadow: 0 0 12px var(--cyan);
+    }
+
+    .ok, .percent-value {
+      color: var(--green);
+      text-shadow: 0 0 10px rgba(112,255,159,.85);
+      flex: 0 0 auto;
+    }
+
+    .charge-title {
+      color: var(--cyan);
+      letter-spacing: 4px;
+      font-size: clamp(18px, 1.8vw, 29px);
+      font-weight: bold;
+      margin: 0 0 18px;
+      text-shadow: 0 0 14px rgba(0,217,255,.7);
+    }
+
+    .progress-row {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      margin-bottom: 34px;
+    }
+
+    .progress-box {
+      height: 30px;
+      border: 2px solid var(--cyan);
+      flex: 1;
+      min-width: 0;
+      box-shadow: 0 0 18px #008cff;
+      background: rgba(0, 10, 25, .45);
+      overflow: hidden;
+    }
+
+    #progressBar {
+      height: 100%;
+      width: 0%;
+      background: repeating-linear-gradient(90deg, #00cfff 0px, #00cfff 18px, #65e6ff 18px, #65e6ff 28px);
+      box-shadow: 0 0 20px #00d5ff;
+      transition: width 0.04s linear;
+    }
+
+    .big-percent {
+      font-size: clamp(26px, 3vw, 46px);
+      color: #9fefff;
+      text-shadow: 0 0 12px #00aaff;
+      width: 96px;
+      text-align: left;
+    }
+
+    .terminal {
+      padding: 16px;
+      border: 1px solid rgba(0,170,255,0.75);
+      background: rgba(0, 10, 30, 0.24);
+      backdrop-filter: blur(5px);
+      box-shadow: inset 0 0 18px rgba(0,170,255,0.20), 0 0 18px rgba(0,170,255,.15);
+      font-family: monospace;
+      margin-bottom: 22px;
+      border-radius: 8px;
+    }
+
+    .pixel-overlay, .pixel-blocks, .blue-glow, .scan-beam, .spark-layer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .pixel-overlay {
+      z-index: 7;
+      background-image: linear-gradient(90deg, rgba(0,180,255,0.42) 1px, transparent 1px), linear-gradient(rgba(0,180,255,0.42) 1px, transparent 1px);
+      background-size: 64px 64px;
+      opacity: 1;
+      mix-blend-mode: screen;
+      transition: opacity 0.05s linear, background-size 0.05s linear;
+    }
+
+    .pixel-overlay::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(90deg, rgba(0, 183, 255, 0.24) 0px, rgba(0, 183, 255, 0.24) 9px, transparent 9px, transparent 22px), radial-gradient(circle at 22% 48%, rgba(0, 221, 255, 0.32), transparent 24%);
+      animation: scanMove 2s linear infinite;
+    }
+
+    .pixel-blocks {
+      z-index: 8;
+      background-image: radial-gradient(circle, rgba(0, 220, 255, 0.9) 0 2px, transparent 3px), linear-gradient(90deg, rgba(0, 160, 255, 0.22) 0 12px, transparent 12px 26px), linear-gradient(rgba(0, 160, 255, 0.18) 0 12px, transparent 12px 26px);
+      background-size: 86px 86px, 92px 92px, 92px 92px;
+      mix-blend-mode: screen;
+      opacity: 0.9;
+      transition: opacity 0.05s linear, background-size 0.05s linear;
+    }
+
+    .blue-glow {
+      z-index: 9;
+      background: radial-gradient(circle at 65% 45%, rgba(0, 200, 255, 0.22), transparent 34%);
+    }
+
+    .scan-beam {
+      z-index: 12;
+      transform: translateX(-120%);
+      background: linear-gradient(90deg, transparent, rgba(0, 238, 255, .12), rgba(255,255,255,.34), rgba(0, 238, 255, .12), transparent);
+      width: 40%;
+      animation: beamMove 2.2s linear infinite;
+    }
+
+    .spark-layer {
+      z-index: 13;
+      background-image:
+        radial-gradient(circle, rgba(0, 255, 255, 0.95) 0 1px, transparent 2px),
+        radial-gradient(circle, rgba(112, 255, 159, 0.75) 0 1px, transparent 2px);
+      background-size: 70px 70px, 110px 110px;
+      opacity: .45;
+      animation: sparkleMove 3s linear infinite;
+      mix-blend-mode: screen;
+    }
+
+    .lock-zone {
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      gap: 22px;
+      min-height: 104px;
+      opacity: 1;
+      transition: 0.7s ease;
+      background: rgba(0,20,40,0.20);
+      backdrop-filter: blur(6px);
+      border: 1px solid rgba(0,217,255,0.38);
+      border-radius: 20px;
+      padding: 24px;
+      overflow: hidden;
+    }
+
+    .lock-icon {
+      width: 66px;
+      height: 58px;
+      border: 4px solid var(--cyan);
+      border-radius: 12px;
+      position: relative;
+      box-shadow: 0 0 25px var(--cyan), inset 0 0 20px rgba(0,213,255,0.30);
+      flex: 0 0 auto;
+      transition: 0.55s ease;
+      animation: lockPulse 1.4s ease-in-out infinite;
+    }
+
+    .lock-icon::before {
+      content: "";
+      position: absolute;
+      width: 38px;
+      height: 34px;
+      left: 10px;
+      top: -38px;
+      border: 4px solid var(--cyan);
+      border-bottom: 0;
+      border-radius: 32px 32px 0 0;
+      box-shadow: 0 0 18px var(--cyan);
+      transition: 0.65s ease;
+    }
+
+    .lock-icon::after {
+      content: "";
+      position: absolute;
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      background: #dffbff;
+      left: 23px;
+      top: 21px;
+      box-shadow: 0 0 14px white;
+    }
+
+    .lock-zone.unlocked .lock-icon {
+      border-color: var(--green);
+      box-shadow: 0 0 36px var(--green), inset 0 0 28px rgba(112,255,159,.3);
+      animation: unlockPop .75s ease 1, unlockGlow 1.2s ease-in-out infinite alternate;
+    }
+
+    .lock-zone.unlocked .lock-icon::before {
+      border-color: var(--green);
+      transform: rotate(-38deg) translate(-15px, 5px);
+      transform-origin: right bottom;
+      box-shadow: 0 0 24px var(--green);
+    }
+
+    .lock-text {
+      min-width: 0;
+    }
+
+    .lock-text .main {
+      color: var(--cyan);
+      font-size: clamp(20px, 2.4vw, 42px);
+      letter-spacing: clamp(2px, .45vw, 5px);
+      line-height: 1.08;
+      text-shadow: 0 0 16px rgba(0,217,255,.85);
+      transition: .5s ease;
+      overflow-wrap: anywhere;
+    }
+
+    .lock-text .sub {
+      color: #bfefff;
+      letter-spacing: 3px;
+      margin-top: 8px;
+      font-size: clamp(11px, 1vw, 15px);
+      transition: .5s ease;
+    }
+
+    .lock-zone.unlocked .lock-text .main,
+    .lock-zone.unlocked .lock-text .sub {
+      color: var(--green);
+      text-shadow: 0 0 18px rgba(112,255,159,.9);
+    }
+
+    .final-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-top: 20px;
+      opacity: 0;
+      transform: translateY(12px);
+      pointer-events: none;
+      transition: .65s ease;
+      position: relative;
+      z-index: 30;
+    }
+
+    .final-actions.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
+
+    .mode-active {
+      color: var(--green);
+      border: 1px solid var(--cyan);
+      padding: 12px 16px;
+      background: rgba(0, 20, 35, 0.34);
+      backdrop-filter: blur(7px);
+      letter-spacing: 5px;
+      font-size: clamp(14px, 1.4vw, 22px);
+      box-shadow: 0 0 24px rgba(0, 229, 255, 0.65);
+      text-align: center;
+      border-radius: 8px;
+    }
+
+    .unlock-btn {
+      width: 100%;
+      background: rgba(0, 20, 55, 0.48);
+      backdrop-filter: blur(9px);
+      color: white;
+      border: 2px solid var(--cyan);
+      padding: 16px 22px;
+      border-radius: 10px;
+      font-size: clamp(16px, 1.6vw, 25px);
+      letter-spacing: 3px;
+      box-shadow: 0 0 30px var(--cyan), inset 0 0 22px rgba(0,191,255,0.35);
+      cursor: pointer;
+      animation: pulseButton 1.1s infinite alternate;
+    }
+
+    .boot-screen.complete .hud-border { animation: hudFlash 0.9s ease 1; }
+    .boot-screen.complete .scan-beam { animation-duration: .85s; }
+    .boot-screen.complete .spark-layer { opacity: .85; animation-duration: 1.2s; }
+
+    @keyframes scanMove { from { transform: translateX(-55px); } to { transform: translateX(55px); } }
+    @keyframes beamMove { from { transform: translateX(-130%); } to { transform: translateX(330%); } }
+    @keyframes sparkleMove { from { background-position: 0 0, 0 0; } to { background-position: 90px 40px, -70px 80px; } }
+    @keyframes pulseButton { from { filter: brightness(0.9); } to { filter: brightness(1.22); } }
+    @keyframes lockPulse { 0%, 100% { transform: scale(1); filter: brightness(1); } 50% { transform: scale(1.05); filter: brightness(1.25); } }
+    @keyframes unlockPop { 0% { transform: scale(1); } 45% { transform: scale(1.22) rotate(2deg); } 100% { transform: scale(1); } }
+    @keyframes unlockGlow { from { filter: brightness(1); } to { filter: brightness(1.35); } }
+    @keyframes hudFlash { 0% { box-shadow: 0 0 28px #009dff, inset 0 0 30px rgba(0, 180, 255, 0.22); } 45% { box-shadow: 0 0 70px var(--green), inset 0 0 55px rgba(125,255,155,0.35); } 100% { box-shadow: 0 0 28px #009dff, inset 0 0 30px rgba(0, 180, 255, 0.22); } }
+    @keyframes flashUnlock { 0% { opacity: 0; } 28% { opacity: .88; } 100% { opacity: 0; } }
+    @keyframes ringBlast { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0); } 20% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -50%) scale(80); } }
+
+
+    /* ========================= */
+    /* ÉCRAN 2 : BIENVENUE */
+    /* ========================= */
+
+    .welcome-screen {
+      display: none;
+      min-height: 100svh;
+      position: relative;
+      overflow: hidden;
+      justify-content: center;
+      align-items: center;
+      padding: clamp(18px, 4vw, 60px);
+      color: #dff8ff;
+      background:
+        radial-gradient(circle at 50% 48%, rgba(0, 170, 255, 0.20), transparent 38%),
+        radial-gradient(circle at 20% 70%, rgba(0, 217, 255, 0.14), transparent 28%),
+        linear-gradient(135deg, #02050d 0%, #031226 48%, #01040b 100%);
+      isolation: isolate;
+    }
+
+    .welcome-screen::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(rgba(0, 180, 255, 0.055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 180, 255, 0.055) 1px, transparent 1px);
+      background-size: 34px 34px;
+      opacity: .8;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .welcome-screen::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        repeating-linear-gradient(
+          to bottom,
+          rgba(255,255,255,0.035),
+          rgba(255,255,255,0.035) 1px,
+          transparent 2px,
+          transparent 6px
+        );
+      pointer-events: none;
+      z-index: 8;
+    }
+
+    .welcome-hud-border {
+      position: absolute;
+      inset: 18px;
+      border: 2px solid var(--cyan);
+      box-shadow: 0 0 28px #009dff, inset 0 0 30px rgba(0, 180, 255, 0.22);
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .welcome-box {
+      width: min(940px, 94vw);
+      min-height: min(700px, calc(100svh - 110px));
+      position: relative;
+      z-index: 5;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: clamp(24px, 4vw, 58px);
+      border: 1px solid rgba(0,217,255,0.36);
+      border-radius: 28px;
+      background:
+        radial-gradient(circle at center, rgba(0, 217, 255, 0.08), transparent 46%),
+        linear-gradient(135deg, rgba(0, 10, 28, 0.54), rgba(0, 10, 28, 0.22));
+      backdrop-filter: blur(7px);
+      box-shadow:
+        0 0 46px rgba(0,217,255,0.26),
+        inset 0 0 42px rgba(0,217,255,0.08);
+    }
+
+    .access-ok {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 26px;
+      border: 1px solid var(--cyan);
+      color: var(--cyan);
+      background: rgba(0, 20, 55, 0.46);
+      box-shadow: 0 0 22px rgba(0,217,255,.75);
+      font-size: clamp(14px, 1.5vw, 21px);
+      letter-spacing: 3px;
+      margin-bottom: clamp(28px, 5vh, 55px);
+    }
+
+    .welcome-box h1 {
+      margin: 0;
+      color: #e8f8ff;
+      font-size: clamp(34px, 5vw, 72px);
+      letter-spacing: clamp(4px, .8vw, 9px);
+      text-shadow:
+        0 0 12px #00aaff,
+        0 0 32px rgba(0, 217, 255, 0.85);
+    }
+
+    .family-name {
+      margin: clamp(18px, 3vh, 32px) 0;
+      color: #6fd8ff;
+      font-size: clamp(34px, 6vw, 82px);
+      font-weight: bold;
+      letter-spacing: clamp(2px, .6vw, 7px);
+      line-height: 1.05;
+      text-shadow:
+        0 0 10px #00d9ff,
+        0 0 34px rgba(0,217,255,.9);
+      text-transform: uppercase;
+    }
+
+    .decoded {
+      color: #dff8ff;
+      font-size: clamp(15px, 2vw, 26px);
+      letter-spacing: clamp(3px, .55vw, 7px);
+      margin-bottom: clamp(26px, 5vh, 56px);
+      text-shadow: 0 0 18px rgba(0,217,255,.85);
+    }
+
+.welcome-symbols {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 35px 0 50px;
+}
+
+.welcome-image {
+  width: min(850px, 95%);
+  max-height: 320px;
+  height: auto;
+  object-fit: contain;
+  display: block;
+
+  filter:
+    drop-shadow(0 0 20px rgba(0,217,255,.9))
+    drop-shadow(0 0 50px rgba(0,217,255,.6));
+
+  animation: symbolFloat 3s ease-in-out infinite alternate;
+}
+    .continue-btn {
+      width: min(520px, 100%);
+      background: rgba(0, 20, 55, 0.62);
+      backdrop-filter: blur(9px);
+      color: white;
+      border: 2px solid var(--cyan);
+      padding: 18px 22px;
+      border-radius: 12px;
+      font-size: clamp(17px, 2vw, 27px);
+      letter-spacing: 3px;
+      box-shadow: 0 0 30px var(--cyan), inset 0 0 22px rgba(0,191,255,0.35);
+      cursor: pointer;
+      animation: pulseButton 1.1s infinite alternate;
+    }
+
+    @keyframes symbolFloat {
+      from { transform: translateY(0) scale(1); filter: brightness(.95); }
+      to { transform: translateY(-10px) scale(1.03); filter: brightness(1.25); }
+    }
+
+    @media (max-width: 700px) {
+      .welcome-hud-border { inset: 10px; }
+      .welcome-box {
+        min-height: calc(100svh - 70px);
+        padding: 26px 18px;
+      }
+      .welcome-symbols {
+        gap: 12px;
+      }
+      .access-ok {
+        letter-spacing: 2px;
+        padding: 10px 14px;
+      }
+    }
+
+
+    /* ========================= */
+    /* FORMULAIRE */
+    /* ========================= */
+
+    .card {
+      display: none;
+      background: white;
+      max-width: 760px;
+      margin: 40px auto;
       padding: 30px;
       border-radius: 20px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+      text-align: center;
     }
 
     input, select, textarea, button {
@@ -27,33 +719,1191 @@
       border-radius: 10px;
       border: 1px solid #ccc;
       font-size: 16px;
-      box-sizing: border-box;
     }
 
-    button {
-      background: #1f3c88;
-      color: white;
-      cursor: pointer;
+    .card button { background: #1f3c88; color: white; cursor: pointer; border: none; font-weight: bold; }
+    .section { margin-top: 25px; padding: 20px; background: #fafafa; border-radius: 15px; border: 1px solid #ddd; }
+    .max { font-size: 14px; color: #666; margin-top: 6px; }
+
+    /* ========================= */
+    /* RESPONSIVE SMARTPHONE */
+    /* ========================= */
+
+
+    @media (max-width: 900px) {
+      .boot-photo { object-position: 62% center; }
+      .photo-zone::before {
+        background:
+          linear-gradient(0deg, rgba(2,5,13,.86), rgba(2,5,13,.46) 55%, rgba(2,5,13,.18)),
+          linear-gradient(90deg, rgba(2,5,13,.55), rgba(2,5,13,.18));
+      }
+      .left-panel {
+        background: rgba(0,10,28,.34);
+        backdrop-filter: blur(6px);
+      }
+    }
+
+    @media (max-width: 900px) {
+      .hud-border { inset: 10px; }
+      .top-left { top: 18px; left: 18px; right: 72px; font-size: 17px; padding: 10px 14px; letter-spacing: 4px; }
+      .top-right { top: 29px; right: 24px; }
+
+      .boot-layout {
+        display: flex;
+        flex-direction: column;
+        min-height: 100svh;
+        gap: 14px;
+        padding: 82px 16px 18px;
+      }
+
+      .left-panel {
+        padding: 20px;
+        justify-content: flex-start;
+        background: rgba(0, 10, 28, 0.28);
+        backdrop-filter: blur(6px);
+      }
+
+      .photo-zone::before {
+        background:
+          linear-gradient(0deg, rgba(2,5,13,.72), rgba(2,5,13,.28) 48%, rgba(2,5,13,.14)),
+          radial-gradient(circle at 50% 22%, rgba(0,217,255,.14), transparent 35%);
+      }
+
+      .left-panel h1 { font-size: clamp(33px, 10vw, 52px); margin-bottom: 18px; }
+      .steps { margin-bottom: 18px; }
+      .steps p, .terminal p { font-size: 14px; margin: 11px 0; }
+      .terminal { display: none; }
+      .progress-row { gap: 10px; margin-bottom: 18px; }
+      .progress-box { height: 24px; }
+      .big-percent { width: 72px; font-size: 28px; }
+      .charge-title { font-size: 18px; letter-spacing: 3px; }
+      .lock-zone { margin-top: 10px; min-height: 78px; gap: 12px; padding: 18px; }
+      .lock-icon { width: 52px; height: 46px; border-width: 3px; border-radius: 10px; }
+      .lock-icon::before { width: 30px; height: 27px; left: 8px; top: -30px; border-width: 3px; }
+      .lock-icon::after { width: 10px; height: 10px; left: 18px; top: 17px; }
+      .lock-text .main { font-size: 20px; letter-spacing: 2px; }
+      .lock-text .sub { font-size: 11px; letter-spacing: 2px; }
+      .final-actions { margin-top: 10px; gap: 10px; }
+      .mode-active { font-size: 13px; letter-spacing: 2px; padding: 9px 10px; }
+      .unlock-btn { padding: 13px 12px; font-size: 15px; letter-spacing: 2px; }
+      .card { margin: 18px; padding: 20px; }
+    }
+
+    @media (max-height: 650px) and (min-width: 901px) {
+      .boot-layout { padding-top: 104px; padding-bottom: 22px; }
+      .left-panel h1 { font-size: 42px; margin-bottom: 18px; }
+      .steps p, .terminal p { margin: 9px 0; font-size: 14px; }
+      .terminal { margin-bottom: 12px; padding: 12px; }
+      .lock-zone { min-height: 76px; }
+      .lock-icon { transform: scale(.82); transform-origin: left center; }
+      .lock-zone.unlocked .lock-icon { animation: none; }
+    }
+  
+
+    /* ===================================================== */
+    /* VERSION SANS RECTANGLE : texte directement sur photo  */
+    /* ===================================================== */
+
+    .photo-zone::before {
+      background:
+        radial-gradient(circle at 58% 42%, rgba(0, 217, 255, 0.10), transparent 38%),
+        linear-gradient(90deg,
+          rgba(2,5,13,0.72) 0%,
+          rgba(2,5,13,0.48) 32%,
+          rgba(2,5,13,0.18) 62%,
+          rgba(2,5,13,0.08) 100%
+        );
+    }
+
+    .boot-photo {
+      filter: blur(20px) brightness(0.42) contrast(1.12) saturate(1.1);
+      opacity: 0.38;
+    }
+
+    .left-panel {
+      background: transparent !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      border: none !important;
+      box-shadow: none !important;
+      padding: clamp(12px, 2.2vw, 34px) !important;
+    }
+
+    .left-panel h1 {
+      color: #ffffff;
+      text-shadow:
+        0 0 10px #00bfff,
+        0 0 25px #00bfff,
+        0 0 45px rgba(0,191,255,.9);
+    }
+
+    .steps,
+    .terminal,
+    .lock-zone {
+      background: transparent !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      border: none !important;
+      box-shadow: none !important;
+    }
+
+    .terminal { padding-left: 0 !important; padding-right: 0 !important; }
+
+    .steps p,
+    .terminal p {
+      color: #eefdff;
+      text-shadow:
+        0 0 7px rgba(0,217,255,.95),
+        0 0 18px rgba(0,217,255,.55),
+        0 2px 4px rgba(0,0,0,.95);
+      font-weight: 600;
+    }
+
+    .charge-title,
+    .big-percent,
+    .lock-text .main,
+    .lock-text .sub {
+      text-shadow:
+        0 0 8px rgba(0,217,255,.95),
+        0 0 22px rgba(0,217,255,.7),
+        0 2px 5px rgba(0,0,0,.95);
+    }
+
+    .lock-zone.unlocked .lock-text .main,
+    .lock-zone.unlocked .lock-text .sub {
+      text-shadow:
+        0 0 10px rgba(112,255,159,.95),
+        0 0 28px rgba(112,255,159,.75),
+        0 2px 5px rgba(0,0,0,.95);
+    }
+
+    .mode-active,
+    .unlock-btn {
+      background: rgba(0, 14, 35, 0.34) !important;
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+    }
+
+    @media (max-width: 900px) {
+      .photo-zone::before {
+        background:
+          linear-gradient(0deg, rgba(2,5,13,.62), rgba(2,5,13,.36) 48%, rgba(2,5,13,.12)),
+          radial-gradient(circle at 50% 22%, rgba(0,217,255,.12), transparent 35%);
+      }
+      .left-panel { padding: 16px !important; }
+    }
+
+
+
+    /* ===================================================== */
+    /* VERSION AVEC CÔTÉ GAUCHE FLOUTÉ/NOIR, SHAÏ BIEN VISIBLE */
+    /* ===================================================== */
+
+    .boot-photo {
+      object-position: 62% center;
+      filter: blur(10px) brightness(0.72) contrast(1.18) saturate(1.16) !important;
+      opacity: 0.78 !important;
+    }
+
+    /* Voile général plus léger : la photo ressort mieux */
+    .photo-zone::before {
+      background:
+        radial-gradient(circle at 64% 42%, rgba(255, 255, 255, 0.16), transparent 30%),
+        linear-gradient(90deg,
+          rgba(0,0,0,0.88) 0%,
+          rgba(0,8,22,0.78) 22%,
+          rgba(0,8,22,0.42) 44%,
+          rgba(0,8,22,0.12) 66%,
+          rgba(0,8,22,0.04) 100%
+        ) !important;
+    }
+
+    /* Flou uniquement derrière la zone de texte à gauche */
+    .left-blur {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: min(48vw, 760px);
+      height: 100%;
+      z-index: 3;
+      pointer-events: none;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      background:
+        linear-gradient(90deg,
+          rgba(0,0,0,0.72) 0%,
+          rgba(0,10,25,0.58) 40%,
+          rgba(0,10,25,0.24) 74%,
+          transparent 100%
+        );
+      box-shadow: 60px 0 120px rgba(0, 0, 0, 0.38);
+    }
+
+    /* Texte lisible sans gros rectangle */
+    .left-panel {
+      max-width: 720px;
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+    }
+
+    .left-panel h1,
+    .steps p,
+    .terminal p,
+    .charge-title,
+    .big-percent {
+      text-shadow:
+        0 0 8px rgba(0,217,255,.95),
+        0 0 22px rgba(0,217,255,.65),
+        0 3px 8px rgba(0,0,0,1) !important;
+    }
+
+    .lock-zone {
+      max-width: 700px;
+    }
+
+    .lock-text .main {
+      white-space: normal;
+      overflow-wrap: normal;
+      word-break: normal;
+    }
+
+    .final-actions {
+      max-width: 720px;
+    }
+
+    @media (max-width: 900px) {
+      .boot-photo {
+        object-position: 60% center;
+        filter: blur(9px) brightness(0.74) contrast(1.15) saturate(1.13) !important;
+        opacity: 0.82 !important;
+      }
+
+      .left-blur {
+        width: 100%;
+        height: 62%;
+        top: 38%;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        background:
+          linear-gradient(0deg,
+            rgba(0,0,0,0.86) 0%,
+            rgba(0,8,22,0.76) 52%,
+            rgba(0,8,22,0.28) 84%,
+            transparent 100%
+          );
+        box-shadow: 0 -70px 110px rgba(0,0,0,.36);
+      }
+
+      .photo-zone::before {
+        background:
+          radial-gradient(circle at 58% 28%, rgba(255,255,255,.14), transparent 34%),
+          linear-gradient(0deg,
+            rgba(0,0,0,0.80) 0%,
+            rgba(0,8,22,0.56) 45%,
+            rgba(0,8,22,0.18) 72%,
+            rgba(0,8,22,0.06) 100%
+          ) !important;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .left-blur { height: 68%; top: 32%; }
+      .boot-photo { object-position: 61% center; }
+    }
+
+
+
+    /* ===================================================== */
+    /* CORRECTION : SHAÏ NET, CONTOUR FLOUTÉ                 */
+    /* ===================================================== */
+
+    .boot-photo {
+      object-position: 62% center !important;
+      filter: brightness(1.05) contrast(1.12) saturate(1.14) !important;
+      opacity: 1 !important;
+      transform: scale(1.02) !important;
+    }
+
+    /* Floute le décor AUTOUR de Shaï, mais laisse une grande zone nette */
+    .human-focus-mask {
+      position: absolute;
+      inset: 0;
+      z-index: 6;
+      pointer-events: none;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      mask-image: radial-gradient(
+        ellipse 24% 44% at 62% 48%,
+        transparent 0%,
+        transparent 54%,
+        black 74%,
+        black 100%
+      );
+      -webkit-mask-image: radial-gradient(
+        ellipse 24% 44% at 62% 48%,
+        transparent 0%,
+        transparent 54%,
+        black 74%,
+        black 100%
+      );
+    }
+
+    /* Assombrit les bords sans cacher Shaï */
+    .photo-zone::before {
+      background:
+        radial-gradient(ellipse 28% 50% at 62% 48%, rgba(255,255,255,0.10), transparent 58%),
+        radial-gradient(ellipse at center, transparent 42%, rgba(0,0,0,0.52) 100%),
+        linear-gradient(90deg,
+          rgba(0,0,0,0.88) 0%,
+          rgba(0,0,0,0.68) 24%,
+          rgba(0,0,0,0.35) 42%,
+          rgba(0,0,0,0.10) 62%,
+          rgba(0,0,0,0.42) 100%
+        ) !important;
+      z-index: 4 !important;
+    }
+
+    .left-blur {
+      z-index: 5 !important;
+      width: min(45vw, 650px) !important;
+      backdrop-filter: blur(10px) !important;
+      -webkit-backdrop-filter: blur(10px) !important;
+      background: linear-gradient(90deg,
+        rgba(0,0,0,0.78) 0%,
+        rgba(0,8,22,0.58) 42%,
+        rgba(0,8,22,0.20) 78%,
+        transparent 100%
+      ) !important;
+    }
+
+    .pixel-overlay { z-index: 9 !important; }
+    .pixel-blocks { z-index: 10 !important; }
+    .scan-beam { z-index: 12 !important; }
+    .spark-layer { z-index: 13 !important; }
+    .blue-glow { z-index: 11 !important; }
+
+    @media (max-width: 900px) {
+      .boot-photo { object-position: 62% center !important; }
+      .human-focus-mask {
+        backdrop-filter: blur(11px);
+        -webkit-backdrop-filter: blur(11px);
+        mask-image: radial-gradient(
+          ellipse 42% 32% at 61% 30%,
+          transparent 0%,
+          transparent 58%,
+          black 78%,
+          black 100%
+        );
+        -webkit-mask-image: radial-gradient(
+          ellipse 42% 32% at 61% 30%,
+          transparent 0%,
+          transparent 58%,
+          black 78%,
+          black 100%
+        );
+      }
+      .photo-zone::before {
+        background:
+          radial-gradient(ellipse 45% 34% at 61% 30%, rgba(255,255,255,0.10), transparent 58%),
+          linear-gradient(0deg,
+            rgba(0,0,0,0.82) 0%,
+            rgba(0,8,22,0.58) 45%,
+            rgba(0,8,22,0.14) 76%,
+            rgba(0,0,0,0.35) 100%
+          ) !important;
+      }
+    }
+
+  
+    /* ===================================================== */
+    /* CORRECTION PHOTO : SHAÏ + KIPPA + LIVRE NETS          */
+    /* ===================================================== */
+
+    .photo-zone {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      overflow: hidden;
       border: none;
+      box-shadow: none;
+      background: #020812;
+    }
+
+    .boot-photo-bg,
+    .boot-photo-front {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: 62% center;
+      display: block;
+    }
+
+    .boot-photo-bg {
+      z-index: 1;
+      filter: blur(18px) brightness(0.48) contrast(1.12) saturate(1.08);
+      transform: scale(1.12);
+      opacity: 0.92;
+    }
+
+    .boot-photo-front {
+      z-index: 6;
+      filter: brightness(0.95) contrast(1.12) saturate(1.15);
+      transform: scale(1.04);
+      opacity: 0.45;
+      transition: opacity 0.05s linear, transform 0.05s linear, filter 0.05s linear;
+
+      -webkit-mask-image:
+        radial-gradient(
+          ellipse 25% 56% at 63% 50%,
+          black 0%,
+          black 64%,
+          rgba(0,0,0,0.75) 75%,
+          transparent 90%
+        );
+      mask-image:
+        radial-gradient(
+          ellipse 25% 56% at 63% 50%,
+          black 0%,
+          black 64%,
+          rgba(0,0,0,0.75) 75%,
+          transparent 90%
+        );
+    }
+
+    .human-clear-zone {
+      position: absolute;
+      inset: 0;
+      z-index: 5;
+      pointer-events: none;
+      background:
+        radial-gradient(
+          ellipse 28% 58% at 63% 50%,
+          rgba(255,255,255,0.16),
+          rgba(0,217,255,0.08) 42%,
+          transparent 74%
+        );
+      mix-blend-mode: screen;
+    }
+
+    .photo-zone::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 4;
+      background:
+        radial-gradient(
+          ellipse 30% 60% at 63% 50%,
+          rgba(255,255,255,0.08),
+          transparent 60%
+        ),
+        linear-gradient(
+          90deg,
+          rgba(0,0,0,0.92) 0%,
+          rgba(0,8,22,0.80) 24%,
+          rgba(0,8,22,0.44) 43%,
+          rgba(0,8,22,0.12) 62%,
+          rgba(0,0,0,0.34) 100%
+        ) !important;
+      pointer-events: none;
+    }
+
+    .pixel-overlay { z-index: 9 !important; }
+    .pixel-blocks { z-index: 10 !important; }
+    .blue-glow { z-index: 11 !important; }
+    .scan-beam { z-index: 12 !important; }
+    .spark-layer { z-index: 13 !important; }
+
+    @media (max-width: 900px) {
+      .boot-photo-bg,
+      .boot-photo-front {
+        object-position: 62% center;
+      }
+
+      .boot-photo-front {
+        -webkit-mask-image:
+          radial-gradient(
+            ellipse 48% 44% at 61% 34%,
+            black 0%,
+            black 64%,
+            rgba(0,0,0,0.75) 76%,
+            transparent 92%
+          );
+        mask-image:
+          radial-gradient(
+            ellipse 48% 44% at 61% 34%,
+            black 0%,
+            black 64%,
+            rgba(0,0,0,0.75) 76%,
+            transparent 92%
+          );
+      }
+
+      .human-clear-zone {
+        background:
+          radial-gradient(
+            ellipse 50% 46% at 61% 34%,
+            rgba(255,255,255,0.14),
+            rgba(0,217,255,0.08) 42%,
+            transparent 76%
+          );
+      }
+
+      .photo-zone::before {
+        background:
+          radial-gradient(
+            ellipse 52% 48% at 61% 34%,
+            rgba(255,255,255,0.08),
+            transparent 62%
+          ),
+          linear-gradient(
+            0deg,
+            rgba(0,0,0,0.82) 0%,
+            rgba(0,8,22,0.60) 42%,
+            rgba(0,8,22,0.18) 72%,
+            rgba(0,0,0,0.36) 100%
+          ) !important;
+      }
+    }
+
+  
+    /* ===================================================== */
+    /* CORRECTION FINALE : PHOTO NETTE, SANS FLOU SUR SHAÏ   */
+    /* ===================================================== */
+
+    .photo-zone {
+      position: absolute !important;
+      inset: 0 !important;
+      z-index: 1 !important;
+      overflow: hidden !important;
+      border: none !important;
+      box-shadow: none !important;
+      background: #020812 !important;
+    }
+
+    .boot-photo {
+      position: absolute !important;
+      inset: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover !important;
+      object-position: 62% center !important;
+      display: block !important;
+
+      /* Aucun flou : kippa, visage, corps, livre et talith restent nets */
+      filter: brightness(1.05) contrast(1.12) saturate(1.16) !important;
+      opacity: 1 !important;
+      transform: scale(1.02) !important;
+
+      -webkit-mask-image: none !important;
+      mask-image: none !important;
+    }
+
+    .boot-photo-bg,
+    .boot-photo-front,
+    .human-focus-mask,
+    .human-clear-zone,
+    .left-blur {
+      display: none !important;
+    }
+
+    .photo-zone::before {
+      content: "" !important;
+      position: absolute !important;
+      inset: 0 !important;
+      z-index: 4 !important;
+      pointer-events: none !important;
+
+      /* Léger assombrissement seulement pour lire le texte, sans flouter */
+      background:
+        linear-gradient(
+          90deg,
+          rgba(0,0,0,0.82) 0%,
+          rgba(0,8,22,0.68) 22%,
+          rgba(0,8,22,0.34) 45%,
+          rgba(0,8,22,0.10) 68%,
+          rgba(0,0,0,0.20) 100%
+        ),
+        radial-gradient(
+          ellipse 38% 70% at 62% 50%,
+          rgba(255,255,255,0.08),
+          transparent 68%
+        ) !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+    }
+
+    .pixel-overlay {
+      z-index: 9 !important;
+      opacity: .55;
+      mix-blend-mode: screen;
+    }
+
+    .pixel-blocks {
+      z-index: 10 !important;
+      opacity: .45;
+      mix-blend-mode: screen;
+    }
+
+    .blue-glow { z-index: 11 !important; }
+    .scan-beam { z-index: 12 !important; }
+    .spark-layer { z-index: 13 !important; }
+
+    @media (max-width: 900px) {
+      .boot-photo {
+        object-position: 62% center !important;
+        filter: brightness(1.05) contrast(1.12) saturate(1.16) !important;
+      }
+
+      .photo-zone::before {
+        background:
+          linear-gradient(
+            0deg,
+            rgba(0,0,0,0.78) 0%,
+            rgba(0,8,22,0.48) 42%,
+            rgba(0,8,22,0.16) 70%,
+            rgba(0,0,0,0.22) 100%
+          ) !important;
+      }
+    }
+
+  
+    /* ===================================================== */
+    /* EFFETS PAGE BIENVENUE : HOLOGRAMME + PARTICULES      */
+    /* ===================================================== */
+
+    .welcome-screen {
+      background:
+        radial-gradient(circle at 50% 50%, rgba(0, 217, 255, 0.18), transparent 38%),
+        radial-gradient(circle at 50% 100%, rgba(0, 140, 255, 0.14), transparent 34%),
+        linear-gradient(135deg, #020814 0%, #03182a 50%, #020711 100%) !important;
+    }
+
+    .welcome-grid-glow {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(rgba(0, 217, 255, 0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 217, 255, 0.055) 1px, transparent 1px),
+        radial-gradient(circle at 50% 72%, rgba(0,217,255,.18), transparent 28%);
+      background-size: 42px 42px, 42px 42px, 100% 100%;
+      animation: welcomeGridMove 9s linear infinite;
+    }
+
+    .welcome-scan {
+      position: absolute;
+      inset: 0;
+      z-index: 4;
+      pointer-events: none;
+      overflow: hidden;
+      mix-blend-mode: screen;
+    }
+
+    .welcome-scan::before {
+      content: "";
+      position: absolute;
+      left: -10%;
+      top: -30%;
+      width: 120%;
+      height: 190px;
+      background: linear-gradient(
+        to bottom,
+        transparent 0%,
+        rgba(0, 217, 255, 0.04) 28%,
+        rgba(255,255,255,0.20) 50%,
+        rgba(0, 217, 255, 0.07) 72%,
+        transparent 100%
+      );
+      filter: blur(4px);
+      animation: welcomeScanMove 4.2s linear infinite;
+    }
+
+    .welcome-particles {
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .welcome-particle {
+      position: absolute;
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: #54eaff;
+      box-shadow:
+        0 0 8px #00d9ff,
+        0 0 18px rgba(0,217,255,.85);
+      opacity: 0;
+      animation: welcomeParticleFloat linear infinite;
+    }
+
+    .welcome-box {
+      animation: welcomeBoxIn 1s ease-out both;
+      overflow: hidden;
+    }
+
+    .welcome-box::before {
+      content: "";
+      position: absolute;
+      inset: -2px;
+      z-index: -1;
+      background:
+        linear-gradient(115deg, transparent 0%, rgba(0,217,255,.20) 48%, transparent 58%);
+      transform: translateX(-120%);
+      animation: welcomeLightSweep 4.8s ease-in-out infinite;
+    }
+
+    .access-ok {
+      animation: accessPulse 1.8s ease-in-out infinite alternate;
+    }
+
+    .family-name {
+      animation: familyGlow 2.2s ease-in-out infinite alternate;
+    }
+
+    .welcome-symbols {
+      position: relative;
+      perspective: 900px;
+    }
+
+    .welcome-symbols::before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: min(720px, 92vw);
+      height: min(360px, 42vw);
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0,217,255,.22), transparent 68%);
+      filter: blur(24px);
+      opacity: .9;
+      animation: imageHaloPulse 2.6s ease-in-out infinite alternate;
+      z-index: -1;
+    }
+
+    .welcome-image {
+      border-radius: 18px;
+      box-shadow:
+        0 0 28px rgba(0,217,255,.55),
+        0 0 70px rgba(0,140,255,.28),
+        inset 0 0 28px rgba(0,217,255,.28);
+      animation: welcomeImageFloat 3.2s ease-in-out infinite alternate !important;
+    }
+
+    .continue-btn {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .continue-btn::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -80%;
+      width: 60%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.30), transparent);
+      transform: skewX(-20deg);
+      animation: buttonSweep 2.7s ease-in-out infinite;
+    }
+
+    @keyframes welcomeGridMove {
+      from { background-position: 0 0, 0 0, center; }
+      to { background-position: 42px 42px, 42px 42px, center; }
+    }
+
+    @keyframes welcomeScanMove {
+      from { transform: translateY(-30vh); }
+      to { transform: translateY(140vh); }
+    }
+
+    @keyframes welcomeParticleFloat {
+      0% { transform: translateY(110vh) translateX(0) scale(.6); opacity: 0; }
+      12% { opacity: 1; }
+      80% { opacity: .9; }
+      100% { transform: translateY(-15vh) translateX(var(--drift)) scale(1.15); opacity: 0; }
+    }
+
+    @keyframes welcomeBoxIn {
+      from { opacity: 0; transform: scale(.92) translateY(18px); filter: blur(8px); }
+      to { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
+    }
+
+    @keyframes welcomeLightSweep {
+      0%, 58% { transform: translateX(-130%); opacity: 0; }
+      70% { opacity: 1; }
+      100% { transform: translateX(130%); opacity: 0; }
+    }
+
+    @keyframes accessPulse {
+      from { box-shadow: 0 0 18px rgba(0,217,255,.55); filter: brightness(.95); }
+      to { box-shadow: 0 0 34px rgba(0,217,255,.95); filter: brightness(1.25); }
+    }
+
+    @keyframes familyGlow {
+      from { text-shadow: 0 0 10px #00d9ff, 0 0 34px rgba(0,217,255,.9); }
+      to { text-shadow: 0 0 18px #c8f8ff, 0 0 52px rgba(0,217,255,1); }
+    }
+
+    @keyframes imageHaloPulse {
+      from { transform: translate(-50%, -50%) scale(.92); opacity: .45; }
+      to { transform: translate(-50%, -50%) scale(1.12); opacity: .95; }
+    }
+
+    @keyframes welcomeImageFloat {
+      from {
+        transform: translateY(0) rotateX(0deg) scale(1);
+        filter:
+          drop-shadow(0 0 20px rgba(0,217,255,.9))
+          drop-shadow(0 0 50px rgba(0,217,255,.6))
+          brightness(1);
+      }
+      to {
+        transform: translateY(-12px) rotateX(2deg) scale(1.025);
+        filter:
+          drop-shadow(0 0 30px rgba(0,217,255,1))
+          drop-shadow(0 0 70px rgba(0,217,255,.75))
+          brightness(1.18);
+      }
+    }
+
+    @keyframes buttonSweep {
+      0%, 48% { left: -80%; }
+      100% { left: 130%; }
+    }
+
+    @media (max-width: 700px) {
+      .welcome-image {
+        width: min(95vw, 560px);
+        max-height: 250px;
+      }
+
+      .welcome-symbols::before {
+        height: 220px;
+      }
+    }
+
+  
+    /* ===================================================== */
+    /* PAGE INVITATION : STYLE MISSIONS FUTURISTES           */
+    /* ===================================================== */
+
+    .invitation-screen {
+      display: none;
+      max-width: none !important;
+      width: 100%;
+      min-height: 100svh;
+      margin: 0 !important;
+      padding: clamp(18px, 4vw, 56px) !important;
+      border-radius: 0 !important;
+      background:
+        radial-gradient(circle at 50% 30%, rgba(0, 217, 255, 0.13), transparent 35%),
+        linear-gradient(135deg, #020814 0%, #03182a 48%, #01050d 100%) !important;
+      color: #dff8ff;
+      box-shadow: none !important;
+      position: relative;
+      overflow: hidden;
+      text-align: center;
+      isolation: isolate;
+    }
+
+    .invitation-screen::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      background:
+        linear-gradient(rgba(0,180,255,.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,180,255,.05) 1px, transparent 1px),
+        repeating-linear-gradient(
+          to bottom,
+          rgba(255,255,255,.025),
+          rgba(255,255,255,.025) 1px,
+          transparent 2px,
+          transparent 6px
+        );
+      background-size: 38px 38px, 38px 38px, auto;
+      pointer-events: none;
+    }
+
+    .invitation-screen::after {
+      content: "";
+      position: absolute;
+      inset: 18px;
+      border: 2px solid rgba(0,217,255,.85);
+      box-shadow:
+        0 0 28px rgba(0,217,255,.75),
+        inset 0 0 34px rgba(0,217,255,.18);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .mission-wrapper {
+      position: relative;
+      z-index: 3;
+      width: min(1180px, 96vw);
+      margin: auto;
+      min-height: calc(100svh - 90px);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .mission-top {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      color: var(--cyan);
+      margin-bottom: 12px;
+    }
+
+    .mission-top h2 {
+      margin: 0;
+      font-size: clamp(18px, 2.2vw, 34px);
+      letter-spacing: clamp(3px, .7vw, 8px);
+      text-shadow: 0 0 18px rgba(0,217,255,.9);
+    }
+
+    .mission-line {
+      width: min(180px, 20vw);
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+      box-shadow: 0 0 14px var(--cyan);
+    }
+
+    .mission-family {
+      margin: 0 0 clamp(22px, 4vh, 42px);
+      color: #e9fbff;
+      font-size: clamp(22px, 3vw, 46px);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      text-shadow:
+        0 0 12px rgba(0,217,255,.9),
+        0 0 34px rgba(0,217,255,.55);
+    }
+
+    .missions-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: clamp(18px, 3vw, 38px);
+      margin-bottom: clamp(22px, 3vh, 34px);
+    }
+
+    .mission-card {
+      position: relative;
+      padding: clamp(22px, 3vw, 34px);
+      min-height: 430px;
+      border: 2px solid rgba(0, 174, 255, .72);
+      background:
+        linear-gradient(135deg, rgba(0, 20, 45, .78), rgba(0, 8, 24, .52));
+      box-shadow:
+        0 0 28px rgba(0,217,255,.30),
+        inset 0 0 28px rgba(0,217,255,.10);
+      clip-path: polygon(0 0, calc(100% - 34px) 0, 100% 34px, 100% 100%, 34px 100%, 0 calc(100% - 34px));
+      text-align: left;
+      overflow: hidden;
+    }
+
+    .mission-card::before {
+      content: "";
+      position: absolute;
+      inset: 18px;
+      border: 1px solid rgba(0,217,255,.28);
+      pointer-events: none;
+      clip-path: polygon(0 0, calc(100% - 24px) 0, 100% 24px, 100% 100%, 24px 100%, 0 calc(100% - 24px));
+    }
+
+    .mission-card::after {
+      content: "";
+      position: absolute;
+      inset: -80px;
+      background: linear-gradient(120deg, transparent 38%, rgba(0,217,255,.16) 50%, transparent 62%);
+      transform: translateX(-90%);
+      animation: missionSweep 5s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    .mission-header {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      padding-bottom: 18px;
+      margin-bottom: 24px;
+      border-bottom: 1px solid rgba(0,217,255,.35);
+      position: relative;
+      z-index: 2;
+    }
+
+    .mission-icon {
+      width: 54px;
+      height: 54px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(0,217,255,.7);
+      border-radius: 10px;
+      font-size: 28px;
+      box-shadow: 0 0 18px rgba(0,217,255,.55);
+      background: rgba(0,20,45,.55);
+    }
+
+    .mission-number {
+      color: #ffb347;
+      font-weight: bold;
+      letter-spacing: 3px;
+      font-size: clamp(16px, 1.8vw, 26px);
+      text-shadow: 0 0 14px rgba(255,179,71,.75);
+      margin-bottom: 10px;
+    }
+
+    .mission-card h3 {
+      margin: 0;
+      color: #bdefff;
+      font-size: clamp(20px, 2.3vw, 34px);
+      letter-spacing: 2px;
+      text-shadow: 0 0 18px rgba(0,217,255,.8);
+    }
+
+    .mission-info {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      gap: 15px;
+      margin-bottom: 26px;
+    }
+
+    .mission-info p {
+      margin: 0;
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      color: #bfefff;
+      border-bottom: 1px solid rgba(0,217,255,.15);
+      padding-bottom: 10px;
+      font-size: clamp(14px, 1.2vw, 18px);
+    }
+
+    .mission-info span {
+      color: #53dfff;
+      letter-spacing: 1px;
+      font-weight: bold;
+      flex: 0 0 auto;
+    }
+
+    .mission-info strong {
+      color: #eaffff;
+      text-align: right;
+      letter-spacing: 1px;
+    }
+
+    .mission-response {
+      position: relative;
+      z-index: 2;
+      border: 1px solid rgba(0,217,255,.25);
+      background: rgba(0, 15, 35, .38);
+      padding: 18px;
+      border-radius: 14px;
+      box-shadow: inset 0 0 20px rgba(0,217,255,.08);
+    }
+
+    .mission-response label {
+      display: block;
+      margin-top: 12px;
+      color: #7beaff;
+      font-size: 13px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .mission-response select,
+    .mission-response input,
+    .mission-form textarea {
+      width: 100%;
+      margin-top: 9px;
+      border: 1px solid rgba(0,217,255,.65);
+      background: rgba(0, 10, 28, .78);
+      color: #eaffff;
+      border-radius: 8px;
+      padding: 13px;
+      outline: none;
+      box-shadow: inset 0 0 16px rgba(0,217,255,.12);
+    }
+
+    .mission-response select:focus,
+    .mission-response input:focus,
+    .mission-form textarea:focus {
+      box-shadow:
+        0 0 18px rgba(0,217,255,.55),
+        inset 0 0 18px rgba(0,217,255,.18);
+    }
+
+    .mission-form {
+      width: min(780px, 100%);
+      margin: 0 auto;
+      position: relative;
+      z-index: 4;
+    }
+
+    .mission-form textarea {
+      min-height: 90px;
+      resize: vertical;
+      text-align: center;
+      letter-spacing: 2px;
+    }
+
+    .mission-submit {
+      background: rgba(0, 20, 55, 0.76) !important;
+      color: white !important;
+      border: 2px solid var(--cyan) !important;
+      padding: 16px 22px !important;
+      border-radius: 10px !important;
+      font-size: clamp(16px, 1.7vw, 24px) !important;
+      letter-spacing: 3px;
+      box-shadow:
+        0 0 28px rgba(0,217,255,.9),
+        inset 0 0 22px rgba(0,191,255,.35);
+      cursor: pointer;
+      margin-top: 16px !important;
       font-weight: bold;
     }
 
-    #formulaire {
-      display: none;
+    .mission-retour {
+      color: var(--green);
+      font-size: 20px;
+      text-shadow: 0 0 18px rgba(112,255,159,.9);
+      min-height: 28px;
     }
 
-    .section {
-      margin-top: 25px;
-      padding: 20px;
-      background: #fafafa;
-      border-radius: 15px;
-      border: 1px solid #ddd;
+    @keyframes missionSweep {
+      0%, 58% { transform: translateX(-95%); opacity: 0; }
+      68% { opacity: 1; }
+      100% { transform: translateX(95%); opacity: 0; }
     }
 
-    .max {
-      font-size: 14px;
-      color: #666;
+    @media (max-width: 850px) {
+      .missions-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .mission-card {
+        min-height: auto;
+      }
+
+      .invitation-screen::after {
+        inset: 10px;
+      }
     }
+
   </style>
 </head>
 <body>
@@ -62,57 +1912,175 @@
   <source src="musique.mp3" type="audio/mpeg">
 </audio>
 
-<div class="card" id="intro">
-  <h1>Bar Mitsvah de Shaï</h1>
-  <p>Nous avons la joie de vous inviter à célébrer ce moment unique.</p>
-  <button onclick="entrer()">Entrer dans l’invitation</button>
+<div id="intro" class="boot-screen">
+  <div class="photo-zone">
+    <img src="photocouleur.png" class="boot-photo" id="bootPhoto" alt="Shaï">
+    <div class="pixel-overlay" id="pixelOverlay"></div>
+    <div class="pixel-blocks" id="pixelBlocks"></div>
+    <div class="scan-beam"></div>
+    <div class="spark-layer"></div>
+    <div class="blue-glow"></div>
+  </div>
+
+  <div class="screen-flash"></div>
+  <div class="energy-ring"></div>
+  <div class="hud-border"></div>
+
+  <div class="top-left">SHAÏ OS 13.0</div>
+  <div class="top-right">בס״ד</div>
+
+  <div class="boot-layout">
+    <div class="left-panel">
+      <h1>INITIALISATION...</h1>
+
+      <div class="steps">
+        <p><span class="line-text">Connexion au serveur Judaïsme</span><span class="ok">OK</span></p>
+        <p><span class="line-text">Chargement des traditions</span><span class="ok">OK</span></p>
+        <p><span class="line-text">Analyse des valeurs</span><span class="ok">OK</span></p>
+        <p><span class="line-text">Reconstruction du profil</span><span class="percent-value" id="progressText">0%</span></p>
+      </div>
+
+      <div class="charge-title">CHARGEMENT EN COURS...</div>
+
+      <div class="progress-row">
+        <div class="progress-box"><div id="progressBar"></div></div>
+        <div class="big-percent" id="bigPercent">0%</div>
+      </div>
+
+      <div class="terminal">
+        <p><span>&gt; Initialisation des modules...</span><span class="ok">OK</span></p>
+        <p><span>&gt; Vérification des composants...</span><span class="ok">OK</span></p>
+        <p><span>&gt; Chargement des souvenirs...</span><span class="ok">OK</span></p>
+        <p><span>&gt; Activation du mode Bar Mitsvah...</span><span class="percent-value" id="terminalPercent">0%</span></p>
+      </div>
+
+      <div class="lock-zone" id="lockZone">
+        <div class="lock-icon"></div>
+        <div class="lock-text">
+          <div class="main" id="lockMain">ACCÈS VERROUILLÉ</div>
+          <div class="sub" id="lockSub">EN ATTENTE DE VALIDATION</div>
+        </div>
+      </div>
+
+      <div class="final-actions" id="finalActions">
+        <div class="mode-active" id="modeActive">[ MODE BAR MITSVAH ACTIVÉ ]</div>
+        <button class="unlock-btn" id="unlockBtn" onclick="entrer()">
+          ▶ DÉVERROUILLER L’INVITATION
+        </button>
+      </div>
+    </div>
+  </div>
 </div>
 
-<div class="card" id="formulaire">
-  <h2 id="titreFamille"></h2>
 
-  <p>
-    📅 Date : [date]<br>
-    🕍 Mise des Téfilines : [lieu et heure]<br>
-    🎉 Réception : [lieu et heure]
-  </p>
+<div id="welcomeScreen" class="welcome-screen">
+  <div class="welcome-grid-glow"></div>
+  <div class="welcome-scan"></div>
+  <div class="welcome-particles" id="welcomeParticles"></div>
+  <div class="welcome-hud-border"></div>
 
-  <form onsubmit="envoyer(event)">
+  <div class="welcome-box">
+    <div class="access-ok">🔓 ACCÈS SÉCURISÉ VALIDÉ</div>
 
-    <div class="section">
-      <h3>🕍 Mise des Téfilines</h3>
+    <h1>BIENVENUE</h1>
 
-      <select id="presenceTefilines" required>
-        <option value="">Serez-vous présents ?</option>
-        <option value="oui">Oui, nous serons présents</option>
-        <option value="non">Non, nous ne pourrons pas venir</option>
-      </select>
-
-      <label>Nombre d’invités pour les Téfilines</label>
-      <input id="nbTefilines" type="number" min="0" required>
-      <div class="max" id="maxTefilines"></div>
+    <div id="welcomeFamily" class="family-name">
+      INVITÉ
     </div>
 
-    <div class="section">
-      <h3>🎉 Réception</h3>
-
-      <select id="presenceReception" required>
-        <option value="">Serez-vous présents ?</option>
-        <option value="oui">Oui, nous serons présents</option>
-        <option value="non">Non, nous ne pourrons pas venir</option>
-      </select>
-
-      <label>Nombre d’invités pour la réception</label>
-      <input id="nbReception" type="number" min="0" required>
-      <div class="max" id="maxReception"></div>
+    <div class="decoded">
+      ✦✦✦ INVITATION DÉCHIFFRÉE ✦✦✦
     </div>
 
-    <textarea id="message" placeholder="Message optionnel"></textarea>
+    <div class="welcome-symbols">
+    	<img src="bienvenue.png" alt="Bienvenue" class="welcome-image">
 
-    <button type="submit">Envoyer ma réponse</button>
-  </form>
+    </div>
 
-  <p id="retour"></p>
+    <button class="continue-btn" onclick="ouvrirFormulaire()">
+      VOIR L’INVITATION
+    </button>
+  </div>
+</div>
+
+
+<div class="card invitation-screen" id="formulaire">
+  <div class="invitation-bg-effects"></div>
+
+  <div class="mission-wrapper">
+    <div class="mission-top">
+      <div class="mission-line"></div>
+      <h2>VOTRE INVITATION</h2>
+      <div class="mission-line"></div>
+    </div>
+
+    <h1 id="titreFamille" class="mission-family"></h1>
+
+    <div class="missions-grid">
+      <div class="mission-card">
+        <div class="mission-header">
+          <div class="mission-icon">🕍</div>
+          <div>
+            <div class="mission-number">MISSION 01</div>
+            <h3>MISE DES TÉFILINES</h3>
+          </div>
+        </div>
+
+        <div class="mission-info">
+          <p><span>📅 DATE</span><strong>22 OCTOBRE 2024</strong></p>
+          <p><span>⏰ HEURE</span><strong>08H00</strong></p>
+          <p><span>📍 LIEU</span><strong>SYNAGOGUE</strong></p>
+        </div>
+
+        <div class="mission-response">
+          <label>Serez-vous présents ?</label>
+          <select id="presenceTefilines" required>
+            <option value="">Choisir une réponse</option>
+            <option value="oui">Oui, nous serons présents</option>
+            <option value="non">Non, nous ne pourrons pas venir</option>
+          </select>
+
+          <label>Nombre d’invités</label>
+          <input id="nbTefilines" type="number" min="0" required>
+        </div>
+      </div>
+
+      <div class="mission-card">
+        <div class="mission-header">
+          <div class="mission-icon">🎉</div>
+          <div>
+            <div class="mission-number">MISSION 02</div>
+            <h3>CÉLÉBRATION</h3>
+          </div>
+        </div>
+
+        <div class="mission-info">
+          <p><span>📅 DATE</span><strong>25 OCTOBRE 2024</strong></p>
+          <p><span>⏰ HEURE</span><strong>19H00</strong></p>
+          <p><span>📍 LIEU</span><strong>SALLE DE RÉCEPTION</strong></p>
+        </div>
+
+        <div class="mission-response">
+          <label>Serez-vous présents ?</label>
+          <select id="presenceReception" required>
+            <option value="">Choisir une réponse</option>
+            <option value="oui">Oui, nous serons présents</option>
+            <option value="non">Non, nous ne pourrons pas venir</option>
+          </select>
+
+          <label>Nombre d’invités</label>
+          <input id="nbReception" type="number" min="0" required>
+        </div>
+      </div>
+    </div>
+
+    <form class="mission-form" onsubmit="envoyer(event)">
+      <textarea id="message" placeholder="MESSAGE OPTIONNEL"></textarea>
+      <button type="submit" class="mission-submit">VALIDER LA RÉPONSE</button>
+    </form>
+
+    <p id="retour" class="mission-retour"></p>
+  </div>
 </div>
 
 <script>
@@ -121,10 +2089,178 @@
   const code = params.get("famille") || params.get("rsvp");
 
   let invite = null;
+  let progress = 0;
+  let audioContext = null;
+  let audioUnlocked = false;
+
+  function getAudioContext() {
+    if (!audioContext) {
+      audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    return audioContext;
+  }
+
+  function playTone(frequency, startTime, duration, type, volume) {
+    try {
+      const ctx = getAudioContext();
+      const oscillator = ctx.createOscillator();
+      const gain = ctx.createGain();
+      oscillator.type = type || "sine";
+      oscillator.frequency.setValueAtTime(frequency, ctx.currentTime + startTime);
+      gain.gain.setValueAtTime(0, ctx.currentTime + startTime);
+      gain.gain.linearRampToValueAtTime(volume || 0.08, ctx.currentTime + startTime + 0.015);
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + startTime + duration);
+      oscillator.connect(gain);
+      gain.connect(ctx.destination);
+      oscillator.start(ctx.currentTime + startTime);
+      oscillator.stop(ctx.currentTime + startTime + duration);
+    } catch (e) {}
+  }
+
+  function playUnlockSound() {
+    try {
+      const ctx = getAudioContext();
+      if (ctx.state === "suspended") ctx.resume();
+      playTone(220, 0.00, 0.12, "sawtooth", 0.055);
+      playTone(440, 0.10, 0.12, "sine", 0.07);
+      playTone(880, 0.22, 0.18, "triangle", 0.09);
+      playTone(1320, 0.40, 0.26, "sine", 0.08);
+    } catch (e) {}
+  }
+
+  function playClickSound() {
+    try {
+      const ctx = getAudioContext();
+      if (ctx.state === "suspended") ctx.resume();
+      playTone(520, 0.00, 0.08, "square", 0.035);
+      playTone(980, 0.07, 0.10, "sine", 0.04);
+    } catch (e) {}
+  }
+
+  function unlockAudioOnFirstInteraction() {
+    if (audioUnlocked) return;
+    audioUnlocked = true;
+    try {
+      const ctx = getAudioContext();
+      if (ctx.state === "suspended") ctx.resume();
+      playTone(180, 0, 0.05, "sine", 0.001);
+    } catch (e) {}
+  }
+
+  document.addEventListener("pointerdown", unlockAudioOnFirstInteraction, { once: true });
+  document.addEventListener("touchstart", unlockAudioOnFirstInteraction, { once: true });
+  document.addEventListener("keydown", unlockAudioOnFirstInteraction, { once: true });
+
+  const bootInterval = setInterval(() => {
+    progress += 1;
+
+    const progressBar = document.getElementById("progressBar");
+    const bigPercent = document.getElementById("bigPercent");
+    const progressText = document.getElementById("progressText");
+    const terminalPercent = document.getElementById("terminalPercent");
+    const bootPhoto = document.getElementById("bootPhoto");
+    const pixelOverlay = document.getElementById("pixelOverlay");
+    const pixelBlocks = document.getElementById("pixelBlocks");
+    const lockZone = document.getElementById("lockZone");
+    const lockMain = document.getElementById("lockMain");
+    const lockSub = document.getElementById("lockSub");
+    const finalActions = document.getElementById("finalActions");
+    const intro = document.getElementById("intro");
+
+    if (!progressBar) return;
+
+    progressBar.style.width = progress + "%";
+    bigPercent.innerText = progress + "%";
+    progressText.innerText = progress + "%";
+    terminalPercent.innerText = progress + "%";
+
+    // La photo reste nette sur Shaï ; seuls les pixels disparaissent progressivement
+    const blur = 0;
+    const brightness = 1.05;
+    const opacity = 1;
+    const scale = 1.02;
+    const gridSize = Math.max(4, 64 - progress * 0.60);
+    const blockSize = Math.max(6, 92 - progress * 0.84);
+
+    bootPhoto.style.filter = "brightness(1.05) contrast(1.12) saturate(1.16)";
+    bootPhoto.style.opacity = Math.min(1, opacity);
+    bootPhoto.style.transform = "scale(" + scale + ")";
+
+    pixelOverlay.style.backgroundSize = gridSize + "px " + gridSize + "px";
+    pixelOverlay.style.opacity = Math.max(0, 1 - progress / 100);
+
+    pixelBlocks.style.backgroundSize = blockSize + "px " + blockSize + "px";
+    pixelBlocks.style.opacity = Math.max(0, 0.95 - progress / 90);
+
+    if (progress >= 100) {
+      clearInterval(bootInterval);
+
+      bootPhoto.style.filter = "brightness(1.08) contrast(1.12) saturate(1.16)";
+      bootPhoto.style.opacity = "1";
+      bootPhoto.style.transform = "scale(1)";
+      pixelOverlay.style.opacity = "0";
+      pixelBlocks.style.opacity = "0";
+
+      intro.classList.add("complete");
+      lockZone.classList.add("unlocked");
+      lockMain.innerHTML = "ACCÈS DÉVERROUILLÉ";
+      lockSub.innerText = "IDENTITÉ VÉRIFIÉE";
+      finalActions.classList.add("show");
+      playUnlockSound();
+    }
+  }, 55);
+
+
+  function creerParticulesBienvenue() {
+    const zone = document.getElementById("welcomeParticles");
+    if (!zone || zone.dataset.ready === "1") return;
+
+    zone.dataset.ready = "1";
+
+    for (let i = 0; i < 90; i++) {
+      const p = document.createElement("span");
+      p.className = "welcome-particle";
+      p.style.left = Math.random() * 100 + "%";
+      p.style.animationDuration = (5 + Math.random() * 9) + "s";
+      p.style.animationDelay = (Math.random() * 7) + "s";
+      p.style.setProperty("--drift", ((Math.random() * 120) - 60) + "px");
+
+      const size = 2 + Math.random() * 3;
+      p.style.width = size + "px";
+      p.style.height = size + "px";
+
+      zone.appendChild(p);
+    }
+  }
 
   async function entrer() {
+    unlockAudioOnFirstInteraction();
+    playClickSound();
+
+    // On affiche TOUJOURS la page bienvenue immédiatement
     document.getElementById("musique").play().catch(() => {});
     document.getElementById("intro").style.display = "none";
+    document.getElementById("welcomeScreen").style.display = "flex";
+    creerParticulesBienvenue();
+
+    // Puis on récupère le nom de la famille depuis Google Sheet
+    try {
+      const res = await fetch(API_URL + "?code=" + encodeURIComponent(code));
+      invite = await res.json();
+
+      if (invite && invite.ok) {
+        document.getElementById("welcomeFamily").innerText =
+          invite.famille || "INVITÉ";
+      } else {
+        document.getElementById("welcomeFamily").innerText = "INVITÉ";
+      }
+    } catch (err) {
+      document.getElementById("welcomeFamily").innerText = "INVITÉ";
+    }
+  }
+
+  function ouvrirFormulaire() {
+    document.getElementById("welcomeScreen").style.display = "none";
     document.getElementById("formulaire").style.display = "block";
     chargerInvite();
   }
@@ -150,11 +2286,7 @@
     nbTefilines.value = invite.tefilinesMax;
     nbReception.value = invite.receptionMax;
 
-    document.getElementById("maxTefilines").innerText =
-      "Maximum autorisé : " + invite.tefilinesMax + " invité(s)";
-
-    document.getElementById("maxReception").innerText =
-      "Maximum autorisé : " + invite.receptionMax + " invité(s)";
+    // Les maximums restent contrôlés en arrière-plan, mais ne sont pas affichés.
 
     nbTefilines.addEventListener("input", function () {
       if (Number(this.value) > invite.tefilinesMax) {
