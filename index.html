@@ -1904,6 +1904,176 @@
       }
     }
 
+  
+    /* ===================================================== */
+    /* PAGE 4 : REMERCIEMENT FUTURISTE                       */
+    /* ===================================================== */
+
+    .merci-page{
+      display:none;
+      min-height:100svh;
+      justify-content:center;
+      align-items:center;
+      padding:clamp(20px,4vw,60px);
+      position:relative;
+      overflow:hidden;
+      color:#dff8ff;
+      background:
+        radial-gradient(circle at center, rgba(112,255,159,.16), transparent 28%),
+        radial-gradient(circle at 50% 80%, rgba(0,217,255,.16), transparent 34%),
+        linear-gradient(135deg,#020814 0%,#03182a 50%,#01050d 100%);
+      isolation:isolate;
+    }
+
+    .merci-page::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      z-index:0;
+      background:
+        linear-gradient(rgba(0,217,255,.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,217,255,.055) 1px, transparent 1px),
+        repeating-linear-gradient(
+          to bottom,
+          rgba(255,255,255,.025),
+          rgba(255,255,255,.025) 1px,
+          transparent 2px,
+          transparent 6px
+        );
+      background-size:42px 42px,42px 42px,auto;
+      animation:merciGridMove 9s linear infinite;
+      pointer-events:none;
+    }
+
+    .merci-page::after{
+      content:"";
+      position:absolute;
+      inset:18px;
+      z-index:1;
+      border:2px solid rgba(0,217,255,.85);
+      box-shadow:
+        0 0 30px rgba(0,217,255,.78),
+        inset 0 0 38px rgba(0,217,255,.18);
+      pointer-events:none;
+    }
+
+    .merci-card{
+      width:min(920px,94vw);
+      position:relative;
+      z-index:3;
+      padding:clamp(34px,6vw,74px);
+      text-align:center;
+      border:1px solid rgba(0,217,255,.55);
+      border-radius:30px;
+      background:
+        radial-gradient(circle at center, rgba(112,255,159,.08), transparent 42%),
+        linear-gradient(135deg, rgba(0,20,45,.74), rgba(0,8,24,.55));
+      backdrop-filter:blur(10px);
+      -webkit-backdrop-filter:blur(10px);
+      box-shadow:
+        0 0 52px rgba(0,217,255,.34),
+        inset 0 0 38px rgba(0,217,255,.12);
+      overflow:hidden;
+      animation:merciCardIn .9s ease-out both;
+    }
+
+    .merci-card::before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      z-index:-1;
+      background:linear-gradient(115deg, transparent 0%, rgba(112,255,159,.20) 45%, rgba(0,217,255,.22) 52%, transparent 62%);
+      transform:translateX(-130%);
+      animation:merciSweep 4.6s ease-in-out infinite;
+    }
+
+    .merci-check{
+      width:118px;
+      height:118px;
+      margin:0 auto 24px;
+      display:grid;
+      place-items:center;
+      border-radius:50%;
+      border:2px solid var(--green);
+      color:var(--green);
+      font-size:76px;
+      line-height:1;
+      box-shadow:
+        0 0 34px rgba(112,255,159,.95),
+        inset 0 0 28px rgba(112,255,159,.22);
+      text-shadow:0 0 24px rgba(112,255,159,1);
+      animation:merciCheckPulse 1.45s ease-in-out infinite alternate;
+    }
+
+    .merci-card h1{
+      margin:0 0 14px;
+      color:var(--green);
+      font-size:clamp(32px,5vw,62px);
+      letter-spacing:clamp(3px,.7vw,8px);
+      text-shadow:
+        0 0 14px rgba(112,255,159,.95),
+        0 0 42px rgba(112,255,159,.55);
+    }
+
+    .merci-card h2{
+      margin:0 0 clamp(24px,4vh,42px);
+      color:var(--cyan);
+      font-size:clamp(18px,2.6vw,34px);
+      letter-spacing:clamp(2px,.5vw,6px);
+      text-shadow:0 0 20px rgba(0,217,255,.9);
+    }
+
+    .merci-card p{
+      margin:0;
+      color:#e8f8ff;
+      font-size:clamp(18px,2vw,25px);
+      line-height:1.75;
+      text-shadow:0 0 12px rgba(0,217,255,.35);
+    }
+
+    .merci-blessing{
+      margin-top:clamp(26px,4vh,42px);
+      color:#9fefff;
+      font-size:clamp(17px,2vw,23px);
+      font-style:italic;
+      line-height:1.6;
+      text-shadow:0 0 16px rgba(0,217,255,.68);
+    }
+
+    .merci-signature{
+      margin-top:clamp(30px,5vh,48px);
+      color:var(--green);
+      font-size:clamp(21px,2.6vw,32px);
+      letter-spacing:3px;
+      text-shadow:0 0 18px rgba(112,255,159,.85);
+    }
+
+    @keyframes merciGridMove{
+      from{background-position:0 0,0 0,0 0;}
+      to{background-position:42px 42px,42px 42px,0 0;}
+    }
+
+    @keyframes merciCardIn{
+      from{opacity:0; transform:scale(.92) translateY(18px); filter:blur(8px);}
+      to{opacity:1; transform:scale(1) translateY(0); filter:blur(0);}
+    }
+
+    @keyframes merciSweep{
+      0%,58%{transform:translateX(-130%); opacity:0;}
+      70%{opacity:1;}
+      100%{transform:translateX(130%); opacity:0;}
+    }
+
+    @keyframes merciCheckPulse{
+      from{transform:scale(1); filter:brightness(1);}
+      to{transform:scale(1.08); filter:brightness(1.25);}
+    }
+
+    @media(max-width:700px){
+      .merci-page::after{inset:10px;}
+      .merci-check{width:92px;height:92px;font-size:58px;}
+    }
+
   </style>
 </head>
 <body>
@@ -2080,6 +2250,30 @@
     </form>
 
     <p id="retour" class="mission-retour"></p>
+  </div>
+</div>
+
+
+<!-- PAGE REMERCIEMENT -->
+<div id="merciPage" class="merci-page">
+  <div class="merci-card">
+    <div class="merci-check">✓</div>
+
+    <h1>RÉPONSE ENREGISTRÉE</h1>
+    <h2>MERCI POUR VOTRE CONFIRMATION</h2>
+
+    <p>
+      Votre réponse a bien été transmise.<br><br>
+      Nous avons hâte de partager avec vous<br>
+      ce moment exceptionnel de la Bar Mitsvah de Shaï.
+    </p>
+
+    <div class="merci-blessing">
+      Que cette journée soit remplie de joie,<br>
+      de bénédictions et de beaux souvenirs.
+    </div>
+
+    <div class="merci-signature">Famille Schando</div>
   </div>
 </div>
 
@@ -2336,7 +2530,13 @@
     });
 
     const result = await res.json();
-    document.getElementById("retour").innerText = result.message;
+
+    if (result.ok) {
+      document.getElementById("formulaire").style.display = "none";
+      document.getElementById("merciPage").style.display = "flex";
+    } else {
+      document.getElementById("retour").innerText = result.message || "Une erreur est survenue.";
+    }
   }
 </script>
 
